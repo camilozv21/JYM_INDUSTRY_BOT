@@ -90,10 +90,10 @@ export default function UploadPage() {
   };
 
   return (
-    <main className="min-h-screen flex justify-center items-center bg-gradient-to-br from-slate-900 to-slate-800 p-6 font-sans">
-      <div className="bg-white/5 backdrop-blur-md border border-white/10 p-8 md:p-10 rounded-3xl shadow-2xl w-full max-w-2xl animate-in fade-in zoom-in duration-700">
+    <main className="min-h-screen flex justify-center items-center p-6 font-sans">
+      <div className="bg-slate-900/50 backdrop-blur-xl border border-white/10 p-8 md:p-10 rounded-3xl shadow-2xl w-full max-w-2xl animate-in fade-in zoom-in duration-700 ring-1 ring-white/5">
         <div className="text-center mb-8">
-            <h1 className="text-3xl md:text-4xl font-bold mb-2 bg-gradient-to-r from-blue-400 to-blue-600 bg-clip-text text-transparent">
+            <h1 className="text-3xl md:text-4xl font-bold mb-2 bg-linear-to-r from-blue-400 to-blue-600 bg-clip-text text-transparent">
             Subir Archivos
             </h1>
             <p className="text-slate-400 text-sm">
