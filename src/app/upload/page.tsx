@@ -3,7 +3,7 @@
 import { useState, useRef, ChangeEvent } from "react";
 import Link from "next/link";
 import UserAvatar from "@/components/auth/UserAvatar";
-import { UploadCloud, X, FileText, CheckCircle, AlertCircle, ArrowLeft, Loader2, ExternalLink } from "lucide-react";
+import { UploadCloud, X, FileText, CheckCircle, AlertCircle, ArrowLeft, Loader2, ExternalLink, LayoutDashboard } from "lucide-react";
 
 interface UploadedFile {
   fileName: string;
@@ -100,7 +100,14 @@ export default function UploadPage() {
 
   return (
     <main className="min-h-screen flex justify-center items-center bg-white p-6 font-sans text-neutral-900 relative">
-      <div className="absolute top-6 right-6 z-50">
+      <div className="absolute top-6 right-6 z-50 flex items-center gap-4">
+        <Link 
+          href="/dashboard"
+          className="hidden md:flex items-center gap-2 px-4 py-2 text-sm font-medium text-neutral-600 bg-white border border-neutral-200 rounded-full hover:bg-neutral-50 hover:text-neutral-900 transition-colors shadow-sm"
+        >
+          <LayoutDashboard className="w-4 h-4" />
+          Mis Archivos
+        </Link>
         <UserAvatar />
       </div>
       

@@ -3,15 +3,12 @@ import { Storage } from "@google-cloud/storage";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
-// Inicializar el cliente de Storage usando las variables de entorno
-// Nota: En producción, es mejor manejar las credenciales de forma más segura si es posible,
-// pero aquí usamos lo que está en .env.local según la solicitud.
 const storage = new Storage({
   projectId: JSON.parse(process.env.GCP_KEY || "{}").project_id,
   credentials: JSON.parse(process.env.GCP_KEY || "{}"),
 });
 
-const bucketName = process.env.BUCKET_NAME || "videos-uploaded-industry";
+const bucketName = process.env.BUCKET_NAME || "data-clients-jym";
 
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);

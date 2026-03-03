@@ -11,8 +11,8 @@ export async function proxy(req: NextRequest) {
     return NextResponse.redirect(new URL("/upload", req.url));
   }
 
-  // 2. Proteger rutas privadas (como /upload)
-  if (pathname.startsWith("/upload") && !token) {
+  // 2. Proteger rutas privadas (como /upload y /dashboard)
+  if ((pathname.startsWith("/upload") || pathname.startsWith("/dashboard")) && !token) {
      const loginUrl = new URL("/auth/signin", req.url);
      loginUrl.searchParams.set("callbackUrl", pathname);
      return NextResponse.redirect(loginUrl);
@@ -22,5 +22,5 @@ export async function proxy(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/upload/:path*", "/auth/:path*"],
+  matcher: ["/upload/:path*", "/dashboard/:path*", "/auth/:path*"],
 };

@@ -141,7 +141,7 @@ export default function LandingPage() {
                 Subir Archivos
                 <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Link>
-              <Link href="/auth/signin" className="inline-flex items-center justify-center px-8 py-4 border border-neutral-200 rounded-full font-medium hover:bg-neutral-50 transition-colors">
+              <Link href="/dashboard" className="inline-flex items-center justify-center px-8 py-4 border border-neutral-200 rounded-full font-medium hover:bg-neutral-50 transition-colors">
                 Ingresar al Panel
               </Link>
             </motion.div>
