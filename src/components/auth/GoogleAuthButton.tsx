@@ -6,7 +6,7 @@ export default function GoogleAuthButton({ isSignUp = false }: { isSignUp?: bool
   return (
     <button
       onClick={() => signIn("google", { callbackUrl: "/" })}
-      className="flex w-full items-center justify-center gap-3 rounded-xl bg-white px-4 py-3 text-sm font-semibold text-slate-800 shadow-lg ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-300 transform hover:-translate-y-0.5 hover:shadow-xl"
+      className="flex w-full items-center justify-center gap-3 rounded-xl bg-white px-4 py-3 text-sm font-semibold text-neutral-900 shadow-lg ring-1 ring-inset ring-neutral-200 hover:bg-neutral-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-neutral-900 transition-all duration-300 transform hover:-translate-y-0.5 hover:shadow-xl"
     >
       <svg className="h-5 w-5" aria-hidden="true" viewBox="0 0 24 24">
         <path
