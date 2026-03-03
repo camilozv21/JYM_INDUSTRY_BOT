@@ -15,7 +15,7 @@ interface UploadedFile {
 export default function UploadPage() {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [isUploading, setIsUploading] = useState(false);
-  const [uploadStatus, setUploadStatus] = useState<"idle" | "success" | "error">("idle");
+  const [uploadStatus, setUploadStatus] = useState<"idle" | "success" | "error" | "warning">("idle");
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [errorMessage, setErrorMessage] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -80,7 +80,14 @@ export default function UploadPage() {
       }
 
       setUploadedFiles(data.files || []);
-      setUploadStatus("success");
+      
+      if (data.warning) {
+        setUploadStatus("warning");
+        setErrorMessage(data.warning);
+      } else {
+        setUploadStatus("success");
+      }
+      
       setSelectedFiles([]);
     } catch (error: any) {
       console.error("Upload error:", error);
@@ -204,7 +211,7 @@ export default function UploadPage() {
                 </button>
               </>
             )}
-            {selectedFiles.length === 0 && uploadStatus === 'success' && (
+            {selectedFiles.length === 0 && (uploadStatus === 'success' || uploadStatus === 'warning') && (
                <button 
                onClick={() => setUploadStatus("idle")} 
                className="ml-auto px-6 py-3 rounded-full text-sm font-medium bg-neutral-900 text-white hover:bg-neutral-800 transition-all flex items-center gap-2"
@@ -223,6 +230,13 @@ export default function UploadPage() {
           </div>
         )}
 
+        {uploadStatus === "warning" && (
+          <div className="mt-8 p-4 rounded-xl flex items-center gap-3 bg-yellow-50 text-yellow-800 border border-yellow-200 animate-in fade-in zoom-in duration-300">
+            <AlertCircle className="w-5 h-5 shrink-0" />
+            <span className="text-sm font-medium">{errorMessage}</span>
+          </div>
+        )}
+
         {uploadStatus === "error" && (
           <div className="mt-8 p-4 rounded-xl flex items-center gap-3 bg-red-50 text-red-700 border border-red-200 animate-in fade-in zoom-in duration-300">
             <AlertCircle className="w-5 h-5 shrink-0" />
@@ -231,7 +245,7 @@ export default function UploadPage() {
         )}
 
         {/* Results List */}
-        {uploadedFiles.length > 0 && uploadStatus === "success" && (
+        {uploadedFiles.length > 0 && (uploadStatus === "success" || uploadStatus === "warning") && (
           <div className="mt-8 pt-8 border-t border-neutral-100 animate-in fade-in slide-in-from-bottom-2 duration-500">
             <h3 className="text-xs font-semibold mb-4 text-neutral-400 uppercase tracking-wider">Archivos en Base de Conocimiento</h3>
             <div className="grid grid-cols-1 gap-3">

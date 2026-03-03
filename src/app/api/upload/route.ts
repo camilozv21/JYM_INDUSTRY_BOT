@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Storage } from "@google-cloud/storage";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 // Inicializar el cliente de Storage usando las variables de entorno
 // Nota: En producción, es mejor manejar las credenciales de forma más segura si es posible,
@@ -12,6 +14,12 @@ const storage = new Storage({
 const bucketName = process.env.BUCKET_NAME || "videos-uploaded-industry";
 
 export async function POST(req: NextRequest) {
+  const session = await getServerSession(authOptions);
+
+  if (!session || !session.user || !session.user.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
     const formData = await req.formData();
     const files: File[] = [];
@@ -32,7 +40,7 @@ export async function POST(req: NextRequest) {
 
     const uploadPromises = files.map(async (file) => {
       const buffer = Buffer.from(await file.arrayBuffer());
-      const fileName = `${Date.now()}-${file.name.replace(/\s/g, "_")}`;
+      const fileName = `users/${session!.user!.id}/${Date.now()}-${file.name.replace(/\s/g, "_")}`;
       const bucket = storage.bucket(bucketName);
       const blob = bucket.file(fileName);
 
@@ -59,8 +67,9 @@ export async function POST(req: NextRequest) {
     const results = await Promise.all(uploadPromises);
 
     // Enviar los resultados al webhook de n8n
+    let webhookSuccess = false;
     try {
-      const webhookUrl = "https://primary-production-dd6b7.up.railway.app/webhook-test/get_files";
+      const webhookUrl = "https://primary-production-dd6b7.up.railway.app/webhook/get_files";
       const webhookResponse = await fetch(webhookUrl, {
         method: "POST",
         headers: {
@@ -77,7 +86,9 @@ export async function POST(req: NextRequest) {
         }),
       });
 
-      if (!webhookResponse.ok) {
+      if (webhookResponse.ok) {
+        webhookSuccess = true;
+      } else {
         console.warn("Error sending data to n8n webhook:", webhookResponse.statusText);
       }
     } catch (webhookError) {
@@ -86,6 +97,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
+      warning: webhookSuccess ? undefined : "Los archivos se subieron correctamente, pero el sistema de procesamiento no respondió. Por favor contacta a soporte: jymindustry@jymindustry.com",
       uploadedConfig: {
         count: results.length,
         bucket: bucketName
