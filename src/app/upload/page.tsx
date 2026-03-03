@@ -2,6 +2,7 @@
 
 import { useState, useRef, ChangeEvent } from "react";
 import Link from "next/link";
+import UserAvatar from "@/components/auth/UserAvatar";
 import { UploadCloud, X, FileText, CheckCircle, AlertCircle, ArrowLeft, Loader2, ExternalLink } from "lucide-react";
 
 interface UploadedFile {
@@ -91,7 +92,10 @@ export default function UploadPage() {
   };
 
   return (
-    <main className="min-h-screen flex justify-center items-center bg-white p-6 font-sans text-neutral-900">
+    <main className="min-h-screen flex justify-center items-center bg-white p-6 font-sans text-neutral-900 relative">
+      <div className="absolute top-6 right-6 z-50">
+        <UserAvatar />
+      </div>
       
       {/* Background Subtle Pattern */}
       <div className="fixed inset-0 z-0 opacity-[0.03] pointer-events-none">
