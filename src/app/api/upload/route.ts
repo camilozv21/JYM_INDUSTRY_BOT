@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { Storage } from "@google-cloud/storage";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import redis from "@/lib/redis";
 
 const storage = new Storage({
   projectId: JSON.parse(process.env.GCP_KEY || "{}").project_id,
@@ -15,6 +16,23 @@ export async function POST(req: NextRequest) {
 
   if (!session || !session.user || !session.user.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  // Check Account Status
+  const userStr = await redis.get(`user:${session.user.id}`);
+  if (!userStr) {
+      return NextResponse.json({ error: "User profile not found." }, { status: 403 });
+  }
+  
+  let userData;
+  try {
+      userData = JSON.parse(userStr);
+  } catch (e) {
+      return NextResponse.json({ error: "User data error" }, { status: 500 });
+  }
+
+  if (userData.accountStatus !== 'active') {
+      return NextResponse.json({ error: "Account not active. Please activate your API Key." }, { status: 403 });
   }
 
   try {

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { Storage } from "@google-cloud/storage";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import redis from "@/lib/redis";
 
 const storage = new Storage({
   projectId: JSON.parse(process.env.GCP_KEY || "{}").project_id,
@@ -16,6 +17,34 @@ export async function GET(req: NextRequest) {
 
   if (!session || !session.user || !session.user.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  // Check Account Status
+  const userKey = `user:${session.user.id}`;
+  const userStr = await redis.get(userKey);
+  
+  // If user doesn't exist in Redis yet but is logged in (via provider), they might need init. 
+  // But for now, we treat as not active or create default? 
+  // Let's assume activation creates the Redis entry or Auth flow does.
+  // Actually, activation creates it if not exists or updates it.
+  
+  if (!userStr) {
+      // User logged in but no redis profile? Maybe they haven't activated?
+      // Or maybe the auth provider didn't sync? 
+      // Safe to require activation.
+      // Actually if userStr is null, we can't check status.
+      return NextResponse.json({ error: "Account not setup. Please go to Activation page." }, { status: 403 });
+  }
+  
+  let userData;
+  try {
+      userData = JSON.parse(userStr);
+  } catch (e) {
+      return NextResponse.json({ error: "User data error" }, { status: 500 });
+  }
+
+  if (userData.accountStatus !== 'active') {
+      return NextResponse.json({ error: "Account not active. Please activate your API Key." }, { status: 403 });
   }
 
   try {
@@ -60,6 +89,24 @@ export async function DELETE(req: NextRequest) {
 
   if (!session || !session.user || !session.user.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  // Check Account Status
+  const userKey = `user:${session.user.id}`;
+  const userStr = await redis.get(userKey);
+  if (!userStr) {
+      return NextResponse.json({ error: "Account not setup. Please go to Activation page." }, { status: 403 });
+  }
+  
+  let userData;
+  try {
+      userData = JSON.parse(userStr);
+  } catch (e) {
+      return NextResponse.json({ error: "User data error" }, { status: 500 });
+  }
+
+  if (userData.accountStatus !== 'active') {
+      return NextResponse.json({ error: "Account not active. Please activate your API Key." }, { status: 403 });
   }
 
   try {

@@ -58,22 +58,33 @@ export const authOptions: NextAuthOptions = {
            const existingUserId = await redis.get(`user:email:${user.email}`);
            if (existingUserId) {
              token.id = existingUserId;
-             const userDataStr = await redis.get(`user:${existingUserId}`);
-             if (userDataStr) {
-               const parsed = JSON.parse(userDataStr);
-               token.role = parsed.role;
-             }
            }
          } catch(e) {
            console.error("Error fetching user in jwt callback", e);
          }
       }
+      
+      // Always refresh user data if we have an ID
+      if (token.id) {
+          try {
+             const userDataStr = await redis.get(`user:${token.id}`);
+             if (userDataStr) {
+               const parsed = JSON.parse(userDataStr);
+               token.role = parsed.role;
+               token.accountStatus = parsed.accountStatus;
+             }
+          } catch(e) {
+             console.error("Error refreshing token data", e);
+          }
+      }
+
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id as string;
-        // session.user.role = token.role as string; // if declare module supports role
+        session.user.role = token.role as string;
+        session.user.accountStatus = token.accountStatus as string;
       }
       return session;
     },

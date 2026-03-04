@@ -4,7 +4,7 @@ import { useSession, signOut } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
-import { LogOut, User, ChevronDown, LayoutDashboard } from "lucide-react";
+import { LogOut, User, ChevronDown, LayoutDashboard, ShieldCheck } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function UserAvatar() {
@@ -94,6 +94,16 @@ export default function UserAvatar() {
                 <LayoutDashboard className="h-4 w-4" />
                 Panel de Control
               </Link>
+              {session?.user?.accountStatus !== 'active' && (
+                <Link
+                  href="/dashboard/activate"
+                  className="flex items-center gap-2 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50 hover:text-neutral-900 transition-colors"
+                  onClick={() => setIsOpen(false)}
+                >
+                  <ShieldCheck className="h-4 w-4" />
+                  Activa tu cuenta
+                </Link>
+              )}
             </div>
 
             <div className="py-1">

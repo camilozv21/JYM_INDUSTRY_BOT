@@ -9,12 +9,14 @@ declare module "next-auth" {
       /** The user's postal address. */
       id: string;
       role?: string;
+      accountStatus?: string;
     } & DefaultSession["user"];
   }
 
   interface User {
     id: string;
     role?: string;
+    accountStatus?: string;
   }
 }
 
@@ -23,5 +25,6 @@ declare module "next-auth/jwt" {
   interface JWT {
     id: string;
     role?: string;
+    accountStatus?: string;
   }
 }
