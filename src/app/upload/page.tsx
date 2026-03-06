@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, ChangeEvent } from "react";
+import { useState, useRef, ChangeEvent, DragEvent } from "react";
 import Link from "next/link";
 import UserAvatar from "@/components/auth/UserAvatar";
 import { UploadCloud, X, FileText, CheckCircle, AlertCircle, ArrowLeft, Loader2, ExternalLink, LayoutDashboard } from "lucide-react";
@@ -18,19 +18,42 @@ export default function UploadPage() {
   const [uploadStatus, setUploadStatus] = useState<"idle" | "success" | "error" | "warning">("idle");
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [errorMessage, setErrorMessage] = useState("");
+  const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const processFiles = (files: File[]) => {
+    // Avoid duplicates
+    const newFiles = Array.from(files);
+    setSelectedFiles((prev) => {
+      const uniqueNewFiles = newFiles.filter(nf => 
+        !prev.some(pf => pf.name === nf.name && pf.size === nf.size)
+      );
+      return [...prev, ...uniqueNewFiles];
+    });
+    setUploadStatus("idle");
+  };
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      const newFiles = Array.from(e.target.files);
-      // Avoid duplicates
-      setSelectedFiles((prev) => {
-        const uniqueNewFiles = newFiles.filter(nf => 
-          !prev.some(pf => pf.name === nf.name && pf.size === nf.size)
-        );
-        return [...prev, ...uniqueNewFiles];
-      });
-      setUploadStatus("idle");
+      processFiles(Array.from(e.target.files));
+    }
+  };
+
+  const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragging(false);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      processFiles(Array.from(e.dataTransfer.files));
     }
   };
 
@@ -130,8 +153,11 @@ export default function UploadPage() {
         {/* Dropzone Area */}
         <div 
           className={`relative group border-2 border-dashed rounded-2xl p-10 text-center transition-all duration-300 cursor-pointer 
-            ${isUploading ? 'opacity-50 pointer-events-none border-neutral-200 bg-neutral-50' : 'border-neutral-300 hover:border-neutral-900 hover:bg-neutral-50'}`}
+            ${isUploading ? 'opacity-50 pointer-events-none border-neutral-200 bg-neutral-50' : isDragging ? 'border-neutral-900 bg-neutral-100 scale-[1.02]' : 'border-neutral-300 hover:border-neutral-900 hover:bg-neutral-50'}`}
           onClick={() => !isUploading && fileInputRef.current?.click()}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
         >
           <input
             type="file"

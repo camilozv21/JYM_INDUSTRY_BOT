@@ -55,9 +55,11 @@ export async function POST(req: NextRequest) {
 
     const uploadPromises = files.map(async (file) => {
       const buffer = Buffer.from(await file.arrayBuffer());
-      const fileName = `users/${session!.user!.id}/${Date.now()}-${file.name.replace(/\s/g, "_")}`;
+      const fileName = `users/${session!.user!.id}/${file.name.replace(/\s/g, "_")}`;
       const bucket = storage.bucket(bucketName);
       const blob = bucket.file(fileName);
+
+      const [exists] = await blob.exists();
 
       // Subir el archivo
       await blob.save(buffer, {
@@ -75,16 +77,21 @@ export async function POST(req: NextRequest) {
         fileName,
         originalName: file.name,
         signedUrl,
-        publicUrl: `https://storage.googleapis.com/${bucketName}/${fileName}`
+        publicUrl: `https://storage.googleapis.com/${bucketName}/${fileName}`,
+        action: exists ? "replace" : "insert"
       };
     });
 
     const results = await Promise.all(uploadPromises);
 
+    const hasReplace = results.some(r => r.action === "replace");
+    const globalAction = hasReplace ? "replace" : "insert";
+
     // Enviar los resultados al webhook de n8n
     let webhookSuccess = false;
     try {
-      const webhookUrl = "https://primary-production-dd6b7.up.railway.app/webhook/get_files";
+      const webhookUrl = `https://primary-production-dd6b7.up.railway.app/webhook/${globalAction === "replace" ? "delete_replace" : "get_files"}`;
+      console.log(webhookUrl);
       const webhookResponse = await fetch(webhookUrl, {
         method: "POST",
         headers: {
@@ -93,6 +100,7 @@ export async function POST(req: NextRequest) {
         },
         body: JSON.stringify({
           success: true,
+          action: globalAction,
           uploadedConfig: {
             count: results.length,
             bucket: bucketName

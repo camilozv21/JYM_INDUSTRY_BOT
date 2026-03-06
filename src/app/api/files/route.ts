@@ -9,7 +9,7 @@ const storage = new Storage({
   credentials: JSON.parse(process.env.GCP_KEY || "{}"),
 });
 
-const bucketName = process.env.BUCKET_NAME || "videos-uploaded-industry";
+const bucketName = process.env.BUCKET_NAME || "data-clients-jym";
 
 // GET: List files for the authenticated user
 export async function GET(req: NextRequest) {
@@ -132,6 +132,29 @@ export async function DELETE(req: NextRequest) {
     }
 
     await file.delete();
+
+    // Trigger n8n webhook for deletion
+    try {
+      const webhookUrl = "https://primary-production-dd6b7.up.railway.app/webhook/delete_replace";
+      await fetch(webhookUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key-auth": process.env.API_KEY_AUTH || ""
+        },
+        body: JSON.stringify({
+          success: true,
+          action: "delete",
+          files: [{
+            fileName: filename,
+            originalName: filename.split('/').pop() || filename
+          }]
+        }),
+      });
+    } catch (webhookError) {
+      console.error("Error triggering deletion webhook:", webhookError);
+      // We don't fail the deletion if the webhook fails, but we log it.
+    }
 
     return NextResponse.json({ success: true, message: "File deleted successfully" });
 

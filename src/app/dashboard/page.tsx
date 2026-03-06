@@ -177,7 +177,7 @@ export default function DashboardPage() {
                                             </div>
                                             <div className="ml-4">
                                                 <div className="text-sm font-medium text-neutral-900 max-w-50 sm:max-w-xs truncate" title={file.name}>
-                                                    {file.name.split('-').slice(1).join('-') || file.name}
+                                                    {file.name}
                                                 </div>
                                             </div>
                                         </div>
