@@ -10,7 +10,10 @@
   },
   "dependencies": {
     "@google-cloud/storage": "^7.19.0",
+    "@radix-ui/react-slot": "^1.2.4",
+    "@splinetool/react-spline": "^4.1.0",
     "bcrypt": "^6.0.0",
+    "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "framer-motion": "^12.34.5",
     "ioredis": "^5.10.0",
