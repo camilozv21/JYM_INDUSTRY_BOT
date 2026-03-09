@@ -271,6 +271,12 @@ export default function LandingPage() {
             J&M Industry Bot Panel
           </div>
           <div className="flex flex-col md:flex-row gap-4 md:gap-8 items-center text-sm text-neutral-500">
+            <Link href="/privacy-policy" className="hover:text-neutral-900 transition-colors">
+              Política de Privacidad
+            </Link>
+            <Link href="/terms-and-conditions" className="hover:text-neutral-900 transition-colors">
+              Términos y Condiciones
+            </Link>
             <p>© {new Date().getFullYear()} J&M Industry. Todos los derechos reservados.</p>
           </div>
         </div>
